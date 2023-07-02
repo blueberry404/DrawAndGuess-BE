@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: drawnguess-be
+    ports:
+      - 3000:3000
+    volumes:
+      - backend:/usr/src/app
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - app-network
+  db:
+    image: mongo
+    container_name: drawnguessDB
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - app-network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+      - MONGO_INITDB_DATABASE
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  backend:
+  mongodb:

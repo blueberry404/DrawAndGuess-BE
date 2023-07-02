@@ -15,8 +15,6 @@ FROM base as development
 
 ENV NODE_ENV=development
 
-RUN npm install -g nodemon
-
 RUN yarn install
 
 RUN yarn build
