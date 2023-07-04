@@ -13,8 +13,10 @@ services:
     restart: unless-stopped
     depends_on:
       - db
+      - redis
     networks:
       - app-network
+
   db:
     image: mongo
     container_name: drawnguessDB
@@ -29,6 +31,17 @@ services:
       - MONGO_INITDB_ROOT_USERNAME
       - MONGO_INITDB_ROOT_PASSWORD
       - MONGO_INITDB_DATABASE
+    
+  redis:
+    image: redis:7-alpine
+    container_name: drawnguess-cache
+    command: redis-server --save 120 1
+    volumes:
+      - ./data:/data
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
 
 networks:
   app-network:
