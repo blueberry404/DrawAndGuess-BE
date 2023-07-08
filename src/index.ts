@@ -7,6 +7,7 @@ dotenv.config();
 import { connectDB, closeDB } from "./database";
 import { UserRouter } from "./users/users.route";
 import { RoomRouter } from "./room/room.route";
+import { ErrorMiddleware } from "./error/error.middleware";
 
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
@@ -25,12 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/room", RoomRouter);
-
-app.get("/", async (req: Request, res: Response): Promise<Response> => {
-  return res.status(200).send({
-    message: "Hello World!!!!!",
-  });
-});
+app.use(ErrorMiddleware);
 
 try {
   connectDB().then(_ => {

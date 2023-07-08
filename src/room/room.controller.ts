@@ -1,14 +1,15 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import { CreateRoomRequest } from "./requests/request.create";
 import { createNewRoom } from "./room.service";
+import { HttpStatusCode } from "../error/HttpStatusCode";
 
-export const createRoom = async (req: Request, res: Response) => {
+export const createRoom = async (req: Request, res: Response, next: NextFunction) => {
     const roomRequest: CreateRoomRequest = req.body;
-    const room = await createNewRoom(roomRequest);
-    if (room == null) {
-        res.status(403).send({ error: "Error occured" });
-    } else {
-        res.status(201).send({ data: room.toJson() });
+    try {
+        const room = await createNewRoom(roomRequest);
+        res.status(HttpStatusCode.ContentCreated).send({ data: room.toJson() });
+    } catch (error) {
+        next(error);   
     }
 };

@@ -8,8 +8,8 @@ services:
     container_name: drawnguess-be
     ports:
       - 3000:3000
-    volumes:
-      - backend:/usr/src/app
+    # volumes:
+    #   - backend:/usr/src/app
     restart: unless-stopped
     depends_on:
       - db
@@ -48,5 +48,5 @@ networks:
     driver: bridge
 
 volumes:
-  backend:
+  # backend:
   mongodb:
