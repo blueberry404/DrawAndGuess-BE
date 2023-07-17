@@ -1,13 +1,13 @@
-import express, { Application, Request, Response } from "express";
-import dotenv from "dotenv";
 import bodyParser from "body-parser";
+import dotenv from "dotenv";
+import express, { Application } from "express";
 
 dotenv.config();
 
-import { connectDB, closeDB } from "./database";
-import { UserRouter } from "./users/users.route";
-import { RoomRouter } from "./room/room.route";
+import { closeDB, connectDB } from "./database";
 import { ErrorMiddleware } from "./error/error.middleware";
+import { RoomRouter } from "./room/room.route";
+import { UserRouter } from "./users/users.route";
 
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');

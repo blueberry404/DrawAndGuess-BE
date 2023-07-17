@@ -10,7 +10,8 @@ import { HttpStatusCode } from '../error/HttpStatusCode';
 
 export const createUser = async (request: UserSignupRequest) => {
     const errors = await validate(request, {
-        skipMissingProperties: false
+        skipMissingProperties: true,
+        forbidUnknownValues: false,
     });
     if (errors.length > 0) {
         console.log(errors);
@@ -18,7 +19,7 @@ export const createUser = async (request: UserSignupRequest) => {
     }
 
     let username = ""
-    if (request.isGuestUser) {
+    if (request.isGuestUser || !request.username) {
         const numberDictionary = NumberDictionary.generate({ min: 100, max: 999 });
         const config: Config = {
             dictionaries : [adjectives, animals, numberDictionary],
@@ -38,7 +39,7 @@ export const createUser = async (request: UserSignupRequest) => {
         email: request.email,
         password: request.password,
         isGuestUser: request.isGuestUser,
-        avatarColor,
+        avatarColor: avatarColor,
     })
     return newUser(guest);
 }
