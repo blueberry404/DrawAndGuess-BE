@@ -1,4 +1,4 @@
-import { HttpStatusCode } from "./HttpStatusCode";
+import { HttpStatusCode } from "./HttpStatusCode.ts";
 
 export class APIError extends Error {
   public readonly httpCode: HttpStatusCode;

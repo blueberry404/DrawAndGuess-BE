@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-import { UserSignupRequest } from "../users/requests/request.signup";
-import { createUser } from "./users.service";
+import { UserSignupRequest } from "../users/requests/request.signup.ts";
+import { createUser } from "./users.service.ts";
 
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {

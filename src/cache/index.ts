@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { RoomInfo } from "../room/response/response.roominfo";
+import { RoomInfo } from "../room/response/response.roominfo.ts";
 
 const portString = process.env.REDIS_PORT;
 let port = 6379

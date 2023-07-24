@@ -4,10 +4,10 @@ import express, { Application } from "express";
 
 dotenv.config();
 
-import { closeDB, connectDB } from "./database";
-import { ErrorMiddleware } from "./error/error.middleware";
-import { RoomRouter } from "./room/room.route";
-import { UserRouter } from "./users/users.route";
+import { closeDB, connectDB } from "./database/index.ts";
+import { ErrorMiddleware } from "./error/error.middleware.ts";
+import { RoomRouter } from "./room/room.route.ts";
+import { UserRouter } from "./users/users.route.ts";
 
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');

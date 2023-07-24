@@ -19,7 +19,7 @@ RUN yarn install
 
 RUN yarn build
 
-CMD [ "yarn", "run", "start:dev" ]
+CMD [ "yarn", "run", "start:dev-ts" ]
 
 
 FROM base as production

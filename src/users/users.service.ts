@@ -1,12 +1,12 @@
 import { uniqueNamesGenerator, NumberDictionary, adjectives, animals, Config } from 'unique-names-generator';
-
-import { UserModel } from "./users.interface";
-import { UserSignupRequest } from "./requests/request.signup";
-import { createUser as newUser } from "./users.repository";
-import { generateColor } from '../utils/nameHelper';
 import { validate } from 'class-validator';
-import { APIError } from '../error/APIError';
-import { HttpStatusCode } from '../error/HttpStatusCode';
+
+import { UserModel } from "./users.interface.ts";
+import { UserSignupRequest } from "./requests/request.signup.ts";
+import { createUser as newUser } from "./users.repository.ts";
+import { generateColor } from '../utils/nameHelper.ts';
+import { APIError } from '../error/APIError.ts';
+import { HttpStatusCode } from '../error/HttpStatusCode.ts';
 
 export const createUser = async (request: UserSignupRequest) => {
     const errors = await validate(request, {

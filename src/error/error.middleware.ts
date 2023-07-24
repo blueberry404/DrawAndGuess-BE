@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { APIError } from "./APIError";
-import { HttpStatusCode } from "./HttpStatusCode";
+import { APIError } from "./APIError.ts";
+import { HttpStatusCode } from "./HttpStatusCode.ts";
 
 export const ErrorMiddleware = async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof APIError && err.isOperational) {
