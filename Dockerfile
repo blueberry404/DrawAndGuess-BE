@@ -17,7 +17,10 @@ ENV NODE_ENV=development
 
 RUN yarn install
 
-RUN yarn build
+RUN apk add --no-cache make gcc g++ python3 && \
+  yarn install && \
+  yarn add --force bcrypt --build-from-source && \
+  apk del make gcc g++ python3
 
 CMD [ "yarn", "run", "start:dev-ts" ]
 

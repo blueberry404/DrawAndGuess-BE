@@ -24,13 +24,23 @@ else {
 const redis = new Redis(port, host);
 
 export const saveRoom = async (key: string, roominfo: RoomInfo) => {
-    return redis.hmset(key, roominfo);
+    await redis.hmset(key, roominfo);
+    await redis.hmset(roominfo.id, roominfo)
 }
 
 export const getRoom = async (key: string) => {
-    return redis.hmget(key, "id", "createdAt", "status");
+    const info = await redis.hmget(key, "id", "createdAt", "status", "password");
+    return (info[0] == null ? null : info);
 }
 
 export const clearRoomForUser = async (key: string) => {
-    return redis.del(key);
+  const values = await getRoom(key);
+  if (values != null) {
+    const id = values[0];
+    if (id != null) {
+      console.log("Found room Id, deleting it!")
+      await redis.del(id)
+    }
+  }
+  await redis.del(key); 
 }
