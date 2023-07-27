@@ -21,7 +21,6 @@ export const createNewRoom = async (room: CreateRoomRequest) => {
     if (!existingRoom) {
         const salt = process.env.SALT_ROUNDS ?? "";
         const encryptedPassword = await bcrypt.hash(room.password, +salt);
-        console.log(`Encrypted::: ${encryptedPassword}`);
         const roomInfo = new RoomInfo(randomUUID(), new Date().toISOString(), RoomStatus[RoomStatus.Created], encryptedPassword);
         await saveRoom(room.userId, roomInfo);
         return roomInfo;
