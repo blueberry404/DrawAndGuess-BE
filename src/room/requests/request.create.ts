@@ -1,4 +1,5 @@
-import { IsNotEmpty, MinLength } from "class-validator"
+import { IsEnum, IsNotEmpty, MinLength } from "class-validator"
+import { GameMode } from "../gameMode"
 
 export class CreateRoomRequest {
 
@@ -10,4 +11,8 @@ export class CreateRoomRequest {
 
     @MinLength(6)
     password!: string
+
+    @IsNotEmpty()
+    @IsEnum(GameMode)
+    mode!: string
 }

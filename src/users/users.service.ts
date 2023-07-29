@@ -32,14 +32,14 @@ export const createUser = async (request: UserSignupRequest) => {
     else {
         username = request.username
     }
-    const avatarColor = generateColor();
+    const color = generateColor();
 
     const guest = new UserModel({
         username: username,
         email: request.email,
         password: request.password,
         isGuestUser: request.isGuestUser,
-        avatarColor: avatarColor,
+        avatarColor: color,
     })
     return newUser(guest);
 }

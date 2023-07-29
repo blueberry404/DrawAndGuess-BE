@@ -1,3 +1,4 @@
+/*
 import { Redis } from "ioredis";
 import { RoomInfo } from "../room/response/response.roominfo.ts";
 
@@ -44,3 +45,4 @@ export const clearRoomForUser = async (key: string) => {
   }
   await redis.del(key); 
 }
+*/

@@ -15,6 +15,7 @@ const UserSchema = new Schema<IUser>({
     email: { type: String },
     password: { type: String },
     isGuestUser: { type: Boolean, required: true },
+    avatarColor: { type: String, required: true },
 }, {
     timestamps: true,
 });

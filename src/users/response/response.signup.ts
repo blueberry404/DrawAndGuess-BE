@@ -1,14 +1,14 @@
 export class UserResponse {
 
     id: string
-    userName: string
+    username: string
     isGuestUser: boolean
     createdAt: Date
     avatarColor: string
 
     constructor(_id: string, _username: string, isGuest: boolean, _createdAt: Date, color: string) {
         this.id = _id
-        this.userName = _username
+        this.username = _username
         this.isGuestUser = isGuest
         this.createdAt = _createdAt
         this.avatarColor = color
@@ -16,7 +16,7 @@ export class UserResponse {
 
     toJson = () => ({
         id: this.id,
-        username: this.userName,
+        username: this.username,
         isGuestUser: this.isGuestUser,
         createdAt: this.createdAt.toISOString(),
         avatarColor: this.avatarColor,
