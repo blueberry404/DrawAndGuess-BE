@@ -1,28 +1,20 @@
 export class WSMessage {
     type!: string
     payload!: WSPayload
-}
 
-export class WSPayload {
-    userId!: string
-    roomId!: string
-}
-
-export class WSClientMessage {
-
-    type!: string
-    payload!: WSClientPayload
-
-    constructor(type: string, payload: WSClientPayload) {
+    constructor(type: string, payload: WSPayload) {
         this.type = type;
         this.payload = payload;
     }
 }
 
-export class WSClientPayload {
+export class WSPayload {
+    userId!: string
+    roomId!: string
     error?: string
+    userIds?: string[]
 
-    constructor(error: string) {
-        this.error = error;
+    constructor(data: Partial<WSPayload>) {
+        Object.assign(this, data);
     }
 }

@@ -5,14 +5,18 @@ export class GameResponse {
     status: string
     users!: GameUser[]
     userTurns!: string[]
+    adminId!: string
+    roomName!: string
 
-    constructor(id: string, mode: string, gameRounds: number, status: string, users: GameUser[], userTurns: string[]) {
+    constructor(id: string, mode: string, gameRounds: number, status: string, users: GameUser[], userTurns: string[], adminId: string, name: string) {
         this.id = id;
         this.mode = mode;
         this.gameRounds = gameRounds;
         this.status = status;
         this.users = users;
         this.userTurns = userTurns;
+        this.adminId = adminId;
+        this.roomName = name;
     }
 
     toJson = () => ({
@@ -26,6 +30,8 @@ export class GameResponse {
             avatarColor: user.avatarColor,
         })),
         userTurns: this.userTurns,
+        adminId: this.adminId,
+        name: this.roomName,
     });
 }
 

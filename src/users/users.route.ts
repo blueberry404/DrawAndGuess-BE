@@ -5,3 +5,6 @@ export const UserRouter = express.Router();
 
 UserRouter.route("/")
     .post(userController.signUp);
+
+UserRouter.route("/info")
+    .post(userController.findUsers);

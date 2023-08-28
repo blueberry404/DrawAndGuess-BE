@@ -2,7 +2,8 @@ import { plainToInstance } from 'class-transformer';
 import * as http from 'http';
 import WebSocket from 'ws';
 
-import { WSClientMessage, WSClientPayload, WSMessage, WSPayload } from './message';
+import { WSMessage, WSPayload } from './message';
+import { removeUserFromRoom } from '../room/room.service';
 
 declare interface Socket extends WebSocket {
     isAlive: boolean;
@@ -42,7 +43,10 @@ export class SocketServer {
             this.wss.clients.forEach((ws: WebSocket) => {
 
                 const client = ws as Socket
-                if (!client.isAlive) return ws.terminate();
+                if (!client.isAlive) {
+                    this.cleanupSocket(client);
+                    return;
+                }
 
                 client.isAlive = false;
                 client.ping(null, false);
@@ -52,7 +56,8 @@ export class SocketServer {
 
     private processMessage = (msgStr: string, ws: WebSocket) => {
         const jsonObject = JSON.parse(msgStr);
-        const message = plainToInstance(WSMessage, jsonObject);
+        const message: WSMessage = plainToInstance(WSMessage, jsonObject as WSMessage);
+        
         console.log(`received message: ${JSON.stringify(message)}`);
         switch (message.type) {
             case "create":
@@ -64,6 +69,9 @@ export class SocketServer {
             case "leave":
                 this.leaveRoom(message.payload, ws);
                 break;
+            case "InitGame":
+                this.prepareForGame(message.payload);
+                break;
             default:
                 break;
         }
@@ -71,21 +79,42 @@ export class SocketServer {
 
     private createRoom =  (payload: WSPayload, ws: Socket) => {
         ws.userId = payload.userId;
-        this.rooms.set(payload.roomId, [ws]);
+        const roomId = payload.roomId;
+        this.rooms.set(roomId, [ws]);
     }
 
     private joinRoom = (payload: WSPayload, ws: Socket) => {
+        ws.userId = payload.userId;
         const roomId = payload.roomId;
+
         if (this.rooms.has(roomId)) {
+            console.log("Socket:: Room found");
             const sockets = this.rooms.get(roomId);
             //same user should not be saved again
             const socket = sockets?.find(so => so.userId == ws.userId)
             if (!socket) {
+                console.log("Socket:: User not joined");
                 this.rooms.get(roomId)?.push(ws);
             }
+            const users: string[] = []             
+            sockets?.forEach(function each(client) {
+                const s: Socket = client as Socket
+                users.push(s.userId);
+            })
+            console.log(`Sockets:: ${users}`)
+            const joinRoomMessage = new WSMessage("Join", new WSPayload({
+                userId: payload.userId,
+                roomId: roomId,
+                userIds: users
+            }));
+            this.broadcastAll(roomId, JSON.stringify(joinRoomMessage));
         }
         else {
-            const message = new WSClientMessage("error", new WSClientPayload("Room doesn't exist"));
+            console.log("Sockets:: Room Id not found")
+            const message = new WSMessage("error", new WSPayload({
+                error: "Room doesn't exist",
+                roomId: roomId,
+            }));
             ws.send(JSON.stringify(message));
             ws.terminate();
         }
@@ -101,8 +130,57 @@ export class SocketServer {
             else {
                 this.rooms.delete(roomId);
             }
+            const users: string[] = [] 
+            const sockets = this.rooms.get(roomId);
+            sockets?.forEach(function each(client) {
+                const s: Socket = client as Socket
+                users.push(s.userId);
+            })
+            const leaveRoomMessage = new WSMessage("Leave", new WSPayload({
+                userId: payload.userId,
+                roomId: roomId,
+                userIds: users
+            }));
+            this.broadcastAll(roomId, JSON.stringify(leaveRoomMessage));
         }
     }
+
+    private prepareForGame = (payload: WSPayload) => {
+        console.log("Prepare!!!!")
+    };
+
+    private cleanupSocket = (ws: Socket) => {
+        //if user is admin, might be delay cleanup and make someone else admin?
+        (async () => {
+            const room = await removeUserFromRoom(ws.userId);
+            if (room) {
+                this.leaveRoom(new WSPayload({
+                    roomId: room._id,
+                    userId: ws.userId,
+                }), ws);
+            }
+            ws.terminate();
+        });
+    };
+
+    private broadcast = (roomId: string, ws:Socket, message: string) => {
+        const sockets = this.rooms.get(roomId);
+        sockets?.forEach(function each(client) {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify(message));
+            }
+          });
+    };
+
+    private broadcastAll = (roomId: string, message: string) => {
+        const sockets = this.rooms.get(roomId);
+        sockets?.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(message);
+            }
+          });
+    };
+
 
     close = () => {
         clearInterval(this.timer);

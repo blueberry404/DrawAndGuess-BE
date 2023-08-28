@@ -4,5 +4,4 @@ export interface UserConcise {
     _id: ObjectId
     username: string
     avatarColor: string
-    password: string
 }

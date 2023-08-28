@@ -4,15 +4,23 @@ import { RoomModel } from "./room.interface";
 
 export const createRoom = async (room: InstanceType<typeof RoomModel>) => {
     const response = await room.save();
-    return new GameResponse(response._id.toString(), response.mode, response.gameRounds, response.status, response.users, response.userTurns);
+    return new GameResponse(response._id.toString(), response.mode, response.gameRounds, response.status, response.users, response.userTurns, response.adminId, response.name);
 };
 
 export const findRoomByUserId = async (userId: string) => {
     return await RoomModel.findOne({ "users._id": userId });
 };
 
+export const checkRoomExists = async (roomName: string) => {
+    return await RoomModel.exists({ name: { "$regex" : roomName, $options: "i" } })
+};
+
 export const findRoom = async (roomName: string) => {
-    return await RoomModel.findOne({ name: roomName });
+    return await RoomModel.findOne({ name: { "$regex" : roomName, $options: "i" } });
+};
+
+export const findRoomById = async (roomId: string) => {
+    return await RoomModel.findOne({ _id: roomId });
 };
 
 export const addUserToRoom = async (gameUser: GameUser, turnIds: string[], roomId: string) => {
@@ -22,9 +30,25 @@ export const addUserToRoom = async (gameUser: GameUser, turnIds: string[], roomI
             $set: { "userTurns": turnIds }
         },
         {
-            new: true, projection: {
-                mode: 1, gameRounds: 1, status: 1, users: 1, userTurns: 1
-            }
+            new: true,
         },
     );
+};
+
+export const deleteRoom = async (roomId: string) => {
+    return await RoomModel.findOneAndDelete({ _id: roomId })
+}; 
+
+export const getRoomUsers = async (roomId: string) => {
+    return await RoomModel.find({ _id: roomId }, { users: 1 });
+};
+
+export const findAndRemoveUser = async (userId: string) => {
+    const room = await RoomModel.findOne({ 'users._id': userId })
+    if (room) {
+        return await RoomModel.findOneAndUpdate({ _id: room._id }, {
+            $pull: { users: { id: userId } }
+        });
+    }
+    return room;
 };

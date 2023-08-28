@@ -3,10 +3,11 @@ import { validate } from 'class-validator';
 
 import { UserModel } from "./users.interface.ts";
 import { UserSignupRequest } from "./requests/request.signup.ts";
-import { createUser as newUser } from "./users.repository.ts";
+import { getUsers, createUser as newUser } from "./users.repository.ts";
 import { generateColor } from '../utils/nameHelper.ts';
 import { APIError } from '../error/APIError.ts';
 import { HttpStatusCode } from '../error/HttpStatusCode.ts';
+import { GetUsersInfoRequest } from './requests/request.users.ts';
 
 export const createUser = async (request: UserSignupRequest) => {
     const errors = await validate(request, {
@@ -42,4 +43,17 @@ export const createUser = async (request: UserSignupRequest) => {
         avatarColor: color,
     })
     return newUser(guest);
+}
+
+export const findUsersByIds = async (request: GetUsersInfoRequest) => {
+    const errors = await validate(request, {
+        skipMissingProperties: true,
+        forbidUnknownValues: false,
+    });
+    if (errors.length > 0) {
+        console.log(errors);
+        throw new APIError(HttpStatusCode.BadRequest, "User Ids missing", true);
+    }
+
+    return await getUsers(request.userIds);
 }

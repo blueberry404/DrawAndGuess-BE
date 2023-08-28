@@ -6,6 +6,5 @@ export const RoomRouter = express.Router();
 RoomRouter.route("/")
     .post(roomController.createRoom);
 
-
 RoomRouter.route("/join")
     .post(roomController.joinRoom);
