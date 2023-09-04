@@ -72,6 +72,8 @@ export class SocketServer {
             case "InitGame":
                 this.prepareForGame(message.payload);
                 break;
+            case "info":
+                this.sendRoomInfo(ws as Socket, message.payload.roomId);
             default:
                 break;
         }
@@ -147,6 +149,21 @@ export class SocketServer {
 
     private prepareForGame = (payload: WSPayload) => {
         console.log("Prepare!!!!")
+    };
+
+    private sendRoomInfo = (ws: Socket, roomId: string) => {
+        const sockets = this.rooms.get(roomId);
+        const users: string[] = []             
+        sockets?.forEach(function each(client) {
+            const s: Socket = client as Socket
+            users.push(s.userId);
+        })
+        const message = new WSMessage("Info", new WSPayload({
+            userId: ws.userId,
+            roomId: roomId,
+            userIds: users,
+        }))
+        ws.send(JSON.stringify(message));
     };
 
     private cleanupSocket = (ws: Socket) => {
