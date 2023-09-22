@@ -3,7 +3,7 @@ import * as http from 'http';
 import WebSocket from 'ws';
 
 import { WSMessage, WSPayload } from './message';
-import { removeUserFromRoom } from '../room/room.service';
+import { removeUserFromRoom, updateRoomForStart } from '../room/room.service';
 
 declare interface Socket extends WebSocket {
     isAlive: boolean;
@@ -69,11 +69,15 @@ export class SocketServer {
             case "leave":
                 this.leaveRoom(message.payload, ws);
                 break;
-            case "InitGame":
+            case "PrepareGame":
                 this.prepareForGame(message.payload);
                 break;
             case "info":
                 this.sendRoomInfo(ws as Socket, message.payload.roomId);
+                break;
+            case "StartGame":
+                this.startGame(message.payload);
+                break;
             default:
                 break;
         }
@@ -148,7 +152,22 @@ export class SocketServer {
     }
 
     private prepareForGame = (payload: WSPayload) => {
-        console.log("Prepare!!!!")
+        console.log("Prepare!!!!");
+        (async () => {
+            await updateRoomForStart(payload.roomId);
+            const sockets = this.rooms.get(payload.roomId);
+            const users: string[] = []
+            sockets?.forEach(function each(client) {
+                const s: Socket = client as Socket
+                users.push(s.userId);
+            });
+            const prepareGameMessage = new WSMessage("PrepareForGame", new WSPayload({
+                userId: payload.userId,
+                roomId: payload.roomId,
+                userIds: users
+            }));
+            this.broadcastAll(payload.roomId, JSON.stringify(prepareGameMessage));
+        })();
     };
 
     private sendRoomInfo = (ws: Socket, roomId: string) => {
@@ -166,6 +185,21 @@ export class SocketServer {
         ws.send(JSON.stringify(message));
     };
 
+    private startGame = (payload: WSPayload) => {
+        const sockets = this.rooms.get(payload.roomId);
+        const users: string[] = []
+        sockets?.forEach(function each(client) {
+            const s: Socket = client as Socket
+            users.push(s.userId);
+        });
+        const startGameMessage = new WSMessage("StartGame", new WSPayload({
+            userId: payload.userId,
+            roomId: payload.roomId,
+            userIds: users
+        }));
+        this.broadcastAll(payload.roomId, JSON.stringify(startGameMessage));
+    };
+
     private cleanupSocket = (ws: Socket) => {
         //if user is admin, might be delay cleanup and make someone else admin?
         (async () => {
@@ -177,7 +211,7 @@ export class SocketServer {
                 }), ws);
             }
             ws.terminate();
-        });
+        })();
     };
 
     private broadcast = (roomId: string, ws:Socket, message: string) => {

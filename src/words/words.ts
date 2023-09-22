@@ -1,0 +1,2 @@
+export const gameWords = ["Cube", "Penguin", "Purse", "House", "Mobile", "Pencil", "Tree", "Banana", "Apple", "Tiger", "Hammer", "Sneeze", "Book", "Phone", "Burger", "Cake", "Love", "Heart", "Tennis", "Hockey", "Snake", "Monkey", "Guitar", "Frock", "Shirt", "Island", "Ladder", "Snail", "Victory", "Flame", "Bird", "Swing", "Moon", "Cradle", "Bottle", "Rainbow", "Furniture", "Dog", "Plate", "Train", "Spoon", "Umbrella", "Fork", "Lamp", "Carpet", "Pizza", "Chair", "Skull", "Tooth", "Watch"]
+//50 words

@@ -8,3 +8,6 @@ RoomRouter.route("/")
 
 RoomRouter.route("/join")
     .post(roomController.joinRoom);
+
+RoomRouter.route("/:roomId")
+    .get(roomController.getRoom);

@@ -7,9 +7,10 @@ import { findUser } from "../users/users.repository.ts";
 import { CreateRoomRequest } from "./requests/request.create.ts";
 import { JoinRoomRequest } from "./requests/request.join.ts";
 import { RoomModel } from "./room.interface.ts";
-import { addUserToRoom, checkRoomExists, createRoom, deleteRoom, findAndRemoveUser, findRoom, findRoomById, findRoomByUserId, getRoomUsers } from "./room.repository.ts";
+import { addUserToRoom, changeRoomToStartState, checkRoomExists, createRoom, deleteRoom, findAndRemoveUser, findRoom, findRoomById, findRoomByUserId, getRoomUsers } from "./room.repository.ts";
 import { GameResponse, GameUser } from "./response/response.game.ts";
 import { shuffled } from "../utils/shuffle.ts";
+import { getRandomWords } from "../words/words.repository.ts";
 
 export const createNewRoom = async (request: CreateRoomRequest) => {
     const errors = await validate(request, {
@@ -70,7 +71,7 @@ export const joinRoomRequest = async (request: JoinRoomRequest) => {
     }
 
     if (room.userTurns.find(id => id == request.userId)) {
-        return new GameResponse(room._id.toString(), room.mode, room.gameRounds, room.status, room.users, room.userTurns, room.adminId, room.name);
+        return new GameResponse(room._id.toString(), room.mode, room.gameRounds, room.status, room.users, room.userTurns, room.adminId, room.name, room.words);
     }
 
     const turnIds = [...room.userTurns, request.userId];
@@ -80,7 +81,7 @@ export const joinRoomRequest = async (request: JoinRoomRequest) => {
     if (modified == null) {
         throw new APIError(HttpStatusCode.InternalError, "Some error occured while adding user", true);
     }
-    const response = new GameResponse(modified._id.toString(), modified.mode, modified.gameRounds, modified.status, modified.users, modified.userTurns, modified.adminId, modified.name);
+    const response = new GameResponse(modified._id.toString(), modified.mode, modified.gameRounds, modified.status, modified.users, modified.userTurns, modified.adminId, modified.name, modified.words);
     return response;
 }
 
@@ -89,8 +90,8 @@ export const findRoomWithRoomId = async (roomId: string) => {
     if (!room) {
         throw new APIError(HttpStatusCode.BadRequest, "Room does not exist", true);
     }
-    return room.users
-}
+    return room;
+};
 
 export const findRoomUsers = async (roomId: string) => {
     return await getRoomUsers(roomId);
@@ -98,4 +99,19 @@ export const findRoomUsers = async (roomId: string) => {
 
 export const removeUserFromRoom = async (userId: string) => {
     return await findAndRemoveUser(userId);
+};
+
+export const updateRoomForStart = async (roomId: string) => {
+    const room = await findRoomById(roomId);
+    if (!room) {
+        throw new APIError(HttpStatusCode.BadRequest, "Room does not exist", true);
+    }
+    const wordsData = await getRandomWords(room.userTurns.length);
+    const words = wordsData.map(w => w.word);
+    const modified = await changeRoomToStartState(roomId, words);
+    if (modified == null) {
+        throw new APIError(HttpStatusCode.InternalError, "Some error occured while saving random words to game", true);
+    }
+    const response = new GameResponse(modified._id.toString(), modified.mode, modified.gameRounds, modified.status, modified.users, modified.userTurns, modified.adminId, modified.name, modified.words);
+    return response;
 };

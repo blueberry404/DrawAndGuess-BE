@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
+import { seedWords } from "../words/words.service";
 
 export const connectDB = async () => {
     try {
-        return mongoose.connect(process.env.DATABASE_CONNECTION_LOCAL as string);
+        const connection = await mongoose.connect(process.env.DATABASE_CONNECTION_LOCAL as string);
+        await seedWords();
+        return connection;
     }
     catch (error) {
         console.error(error);
