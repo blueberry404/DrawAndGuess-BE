@@ -58,7 +58,6 @@ export class SocketServer {
         const jsonObject = JSON.parse(msgStr);
         const message: WSMessage = plainToInstance(WSMessage, jsonObject as WSMessage);
         
-        console.log(`received message: ${JSON.stringify(message)}`);
         switch (message.type) {
             case "create":
                 this.createRoom(message.payload, ws as Socket);
@@ -77,6 +76,10 @@ export class SocketServer {
                 break;
             case "StartGame":
                 this.startGame(message.payload);
+                break;
+            case "Sync":
+                const converted = JSON.stringify(message);
+                this.broadcast(message.payload.roomId, ws as Socket, converted);
                 break;
             default:
                 break;
@@ -218,7 +221,7 @@ export class SocketServer {
         const sockets = this.rooms.get(roomId);
         sockets?.forEach(function each(client) {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
-              client.send(JSON.stringify(message));
+              client.send(message);
             }
           });
     };

@@ -13,8 +13,28 @@ export class WSPayload {
     roomId!: string
     error?: string
     userIds?: string[]
+    canvasState?: CanvasState
 
     constructor(data: Partial<WSPayload>) {
         Object.assign(this, data);
     }
+}
+
+export class CanvasState {
+    polygons!: CanvasPolygon[]
+}
+
+export class CanvasPolygon {
+    offsets!: Offset[]
+    strokeWidth!: number
+    paintColor!: Color
+}
+
+export class Offset {
+    x!: number
+    y!: number
+}
+
+export class Color {
+    argb!: number
 }
