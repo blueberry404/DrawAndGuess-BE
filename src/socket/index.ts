@@ -77,10 +77,28 @@ export class SocketServer {
             case "StartGame":
                 this.startGame(message.payload);
                 break;
-            case "Sync":
+            case "Sync": {
                 const converted = JSON.stringify(message);
                 this.broadcast(message.payload.roomId, ws as Socket, converted);
                 break;
+            }
+            case "CorrectGuess":
+                this.roundOver(message.payload, true);
+                break;
+            case "WrongGuess":
+                break;
+            case "EndGame":
+                this.roundOver(message.payload, false);
+                break;
+            case "NewRound": {
+                const payload = message.payload;
+                const newMessage = new WSMessage("NewRound", new WSPayload({
+                    userId: payload.userId,
+                    roomId: payload.roomId,
+                }));
+                this.broadcastAll(message.payload.roomId, JSON.stringify(newMessage));
+                break;
+            }
             default:
                 break;
         }
@@ -201,6 +219,17 @@ export class SocketServer {
             userIds: users
         }));
         this.broadcastAll(payload.roomId, JSON.stringify(startGameMessage));
+    };
+
+    private roundOver = (payload: WSPayload, hasWon: boolean) => {
+        const newPayload = new WSPayload({
+            userId: payload.userId,
+            roomId: payload.roomId,
+            wonRound: hasWon ?? undefined
+        })
+        console.log(`Round over: ${JSON.stringify(newPayload)}`);
+        const message = new WSMessage("RoundOver", newPayload);
+        this.broadcastAll(payload.roomId, JSON.stringify(message));
     };
 
     private cleanupSocket = (ws: Socket) => {

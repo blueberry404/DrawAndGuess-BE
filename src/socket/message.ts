@@ -14,6 +14,7 @@ export class WSPayload {
     error?: string
     userIds?: string[]
     canvasState?: CanvasState
+    wonRound?: boolean
 
     constructor(data: Partial<WSPayload>) {
         Object.assign(this, data);
