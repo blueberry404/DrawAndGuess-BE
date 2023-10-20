@@ -10,6 +10,11 @@ declare interface Socket extends WebSocket {
     userId: string;
 }
 
+declare interface SocketHeader extends http.IncomingMessage {
+    room_id: string;
+    user_id: string;
+}
+
 export class SocketServer {
 
     private wss: WebSocket.Server<typeof WebSocket, typeof http.IncomingMessage>
@@ -22,7 +27,13 @@ export class SocketServer {
     }
 
     private initSockets = () => {
-        this.wss.on("connection", (ws: Socket) => {
+        this.wss.on("connection", (ws: Socket, request: http.IncomingMessage) => {
+
+            const headers = request.headers as unknown as SocketHeader
+            const userId = headers.user_id
+            const roomId = headers.room_id
+
+            this.replaceExistingStaleConnection(ws, roomId, userId);
 
             ws.isAlive = true;
 
@@ -33,10 +44,25 @@ export class SocketServer {
             ws.on("message", (message: string) => {
                 this.processMessage(message, ws);
             });
-            console.log(`Received a new connection: ${ws}`);
+        
+            console.log(`Received a new connection :: ${JSON.stringify(headers)}`);
         });
         this.pingForHeartbeat();
     };
+
+    private replaceExistingStaleConnection = (ws: Socket, roomId: string, userId: string) => {
+        console.log(`room: ${roomId}, user: ${userId}`);
+        if (this.rooms.has(roomId)) {
+            const sockets = this.rooms.get(roomId);
+            if (sockets != null) {
+                const index = sockets.findIndex(so => so.userId == ws.userId);
+                if (index != undefined && index > -1) {
+                    console.log(`Socket:: Room ${roomId} with old socket ${userId} found`);
+                    sockets[index] = ws
+                }
+            }
+        }
+    }
 
     private pingForHeartbeat = () => {
         this.timer = setInterval(() => {
@@ -148,28 +174,35 @@ export class SocketServer {
     }
 
     private leaveRoom = (payload: WSPayload, ws: WebSocket) => {
-        const roomId = payload.roomId;
-        const filtered = this.rooms.get(roomId)?.filter(so => so !== ws);
-        if (filtered) {
-            if (filtered.length > 0) {
-                this.rooms.set(roomId, filtered);
+
+        (async () => {
+            
+            const roomId = payload.roomId;
+            console.log(`Cleaning up for user: ${payload.userId}`);
+            await removeUserFromRoom(payload.userId);
+            const filtered = this.rooms.get(roomId)?.filter(so => so !== ws);
+            if (filtered) {
+                if (filtered.length > 0) {
+                    this.rooms.set(roomId, filtered);
+                }
+                else {
+                    this.rooms.delete(roomId);
+                }
+                const users: string[] = []
+                const sockets = this.rooms.get(roomId);
+                sockets?.forEach(function each(client) {
+                    const s: Socket = client as Socket
+                    users.push(s.userId);
+                });
+                const leaveRoomMessage = new WSMessage("Leave", new WSPayload({
+                    userId: payload.userId,
+                    roomId: roomId,
+                    userIds: users
+                }));
+                this.broadcastAll(roomId, JSON.stringify(leaveRoomMessage));
             }
-            else {
-                this.rooms.delete(roomId);
-            }
-            const users: string[] = [] 
-            const sockets = this.rooms.get(roomId);
-            sockets?.forEach(function each(client) {
-                const s: Socket = client as Socket
-                users.push(s.userId);
-            })
-            const leaveRoomMessage = new WSMessage("Leave", new WSPayload({
-                userId: payload.userId,
-                roomId: roomId,
-                userIds: users
-            }));
-            this.broadcastAll(roomId, JSON.stringify(leaveRoomMessage));
-        }
+            ws.terminate();
+        })();
     }
 
     private prepareForGame = (payload: WSPayload) => {
@@ -235,6 +268,7 @@ export class SocketServer {
     private cleanupSocket = (ws: Socket) => {
         //if user is admin, might be delay cleanup and make someone else admin?
         (async () => {
+            console.log(`Cleaning up for user: ${ws.userId}`);
             const room = await removeUserFromRoom(ws.userId);
             if (room) {
                 this.leaveRoom(new WSPayload({
