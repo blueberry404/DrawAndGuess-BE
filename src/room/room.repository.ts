@@ -57,7 +57,7 @@ export const findAndRemoveUser = async (userId: string) => {
     return room;
 };
 
-export const changeRoomToStartState = async (roomId: string, words: string[]) => {
+export const changeRoomToStartState = async (roomId: string, words: string[][]) => {
     return await RoomModel.findOneAndUpdate({ _id: roomId }, {
         $set: { "words": words, status: "GameStarted" }
     },

@@ -12,7 +12,7 @@ export interface IRoom extends Document {
     users: GameUser[]
     userTurns: string[]
     adminId: string
-    words: string[]
+    words: string[][]
 }
 
 const GameUserSchema = new Schema<GameUser>({
@@ -35,7 +35,7 @@ const RoomSchema = new Schema<IRoom>({
     }],
     userTurns: { type: [String], default: [] },
     adminId: { type: String, required: true },
-    words: { type: [String], default: [] },
+    words: { type: [[String]], default: [] },
 }, {
     timestamps: true,
 });

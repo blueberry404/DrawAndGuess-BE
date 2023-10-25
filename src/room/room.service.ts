@@ -106,12 +106,22 @@ export const updateRoomForStart = async (roomId: string) => {
     if (!room) {
         throw new APIError(HttpStatusCode.BadRequest, "Room does not exist", true);
     }
-    const wordsData = await getRandomWords(room.userTurns.length);
-    const words = wordsData.map(w => w.word);
-    const modified = await changeRoomToStartState(roomId, words);
+    const allWords: string[][] = []
+
+    for (let i = 0; i < room.gameRounds; i++) {
+        const wordsData = await getRandomWords(room.userTurns.length);
+        const words = wordsData.map(w => w.word);
+        allWords[i] = words;
+    }
+
+    const modified = await changeRoomToStartState(roomId, allWords);
     if (modified == null) {
         throw new APIError(HttpStatusCode.InternalError, "Some error occured while saving random words to game", true);
     }
     const response = new GameResponse(modified._id.toString(), modified.mode, modified.gameRounds, modified.status, modified.users, modified.userTurns, modified.adminId, modified.name, modified.words);
     return response;
+};
+
+export const removeRoom = async (roomId: string) => {
+    await deleteRoom(roomId);
 };

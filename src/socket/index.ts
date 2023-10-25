@@ -3,7 +3,7 @@ import * as http from 'http';
 import WebSocket from 'ws';
 
 import { WSMessage, WSPayload } from './message';
-import { removeUserFromRoom, updateRoomForStart } from '../room/room.service';
+import { removeRoom, removeUserFromRoom, updateRoomForStart } from '../room/room.service';
 
 declare interface Socket extends WebSocket {
     isAlive: boolean;
@@ -109,20 +109,25 @@ export class SocketServer {
                 break;
             }
             case "CorrectGuess":
-                this.roundOver(message.payload, true);
+                this.turnOver(message.payload, true);
                 break;
             case "WrongGuess":
                 break;
-            case "EndGame":
-                this.roundOver(message.payload, false);
+            case "EndTurn":
+                this.turnOver(message.payload, false);
                 break;
-            case "NewRound": {
+            case "NextTurn":
+            case "NextRound": {
                 const payload = message.payload;
-                const newMessage = new WSMessage("NewRound", new WSPayload({
+                const newMessage = new WSMessage(message.type, new WSPayload({
                     userId: payload.userId,
                     roomId: payload.roomId,
                 }));
                 this.broadcastAll(message.payload.roomId, JSON.stringify(newMessage));
+                break;
+            }
+            case "EndGame": {
+                this.cleanupGame(message.payload);
                 break;
             }
             default:
@@ -254,15 +259,29 @@ export class SocketServer {
         this.broadcastAll(payload.roomId, JSON.stringify(startGameMessage));
     };
 
-    private roundOver = (payload: WSPayload, hasWon: boolean) => {
+    private turnOver = (payload: WSPayload, hasWon: boolean) => {
         const newPayload = new WSPayload({
             userId: payload.userId,
             roomId: payload.roomId,
             wonRound: hasWon ?? undefined
         })
         console.log(`Round over: ${JSON.stringify(newPayload)}`);
-        const message = new WSMessage("RoundOver", newPayload);
+        const message = new WSMessage("TurnOver", newPayload);
         this.broadcastAll(payload.roomId, JSON.stringify(message));
+    };
+
+    private cleanupGame = (payload: WSPayload) => {
+        console.log(`Cleaning the room: ${payload.roomId}`);
+        (async () => {
+            await removeRoom(payload.roomId);
+            if (this.rooms.has(payload.roomId)) {
+                const sockets = this.rooms.get(payload.roomId);
+                sockets?.forEach(function each(client) {
+                    client.terminate();
+                });
+                this.rooms.delete(payload.roomId);
+            }
+        });
     };
 
     private cleanupSocket = (ws: Socket) => {
