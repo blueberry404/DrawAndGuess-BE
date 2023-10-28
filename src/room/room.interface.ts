@@ -27,7 +27,7 @@ const RoomSchema = new Schema<IRoom>({
     name: { type: String, required: true },
     passcode: { type: String, required: true },
     mode: { type: String, enum: ["Single", "Many"], default: "Single" },
-    gameRounds: { type: Number, default: 2 },
+    gameRounds: { type: Number, default: 1 },
     status: { type: String, enum: ["Created", "GameStarted", "Finished"], default: "Created" },
     users: [{
         type: GameUserSchema,
