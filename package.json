@@ -4,9 +4,8 @@
   "description": "Simple Backend for Draw and Guess Game",
   "main": "index.js",
   "scripts": {
-    "start:dev": "node dist/index.js",
-    "start:dev-ts": "./node_modules/.bin/ts-node-dev --respawn src/index.ts",
-    "build": "rimraf ./dist && ./node_modules/.bin/tsc",
+    "start": "npx ts-node src/index.ts",
+    "start:dev": "./node_modules/.bin/ts-node-dev --respawn src/index.ts",
     "prod:start": "yarn build && node dist/index.js",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix",
@@ -39,9 +38,10 @@
     "class-validator": "0.13.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "helmet": "^7.0.0",
     "ioredis": "^5.3.2",
     "mongoose": "^7.3.1",
-    "rimraf": "^5.0.1",
     "unique-names-generator": "^4.7.1",
     "uuid": "^9.0.0",
     "ws": "^8.13.0"

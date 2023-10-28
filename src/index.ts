@@ -1,7 +1,9 @@
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import express, { Application } from "express";
-import * as http from 'http';
+import * as http from "http";
+import helmet from "helmet";
+import ExpressMongoSanitize from "express-mongo-sanitize";
 
 dotenv.config();
 
@@ -25,8 +27,10 @@ process.on('exit', async () => {
 
 const app: Application = express();
 const port = process.env.PORT;
+app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(ExpressMongoSanitize());
 
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/room", RoomRouter);
