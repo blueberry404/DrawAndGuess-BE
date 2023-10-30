@@ -14,11 +14,11 @@
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
-    "noEmit": true,
-    // "emitDeclarationOnly": true,
+    "noEmit": false,
+    "emitDeclarationOnly": false,
     // "declaration": false,
     "composite": true,
-    "allowImportingTsExtensions": true,
+    // "allowImportingTsExtensions": true,
   },
   "exclude": [ "./dist", "./node_modules", "./mongo-init.js"]
 }

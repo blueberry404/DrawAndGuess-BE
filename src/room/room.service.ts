@@ -1,16 +1,16 @@
 import bcrypt from "bcrypt";
 import { validate } from "class-validator";
 
-import { APIError } from "../error/APIError.ts";
-import { HttpStatusCode } from "../error/HttpStatusCode.ts";
-import { findUser } from "../users/users.repository.ts";
-import { CreateRoomRequest } from "./requests/request.create.ts";
-import { JoinRoomRequest } from "./requests/request.join.ts";
-import { RoomModel } from "./room.interface.ts";
-import { addUserToRoom, changeRoomToStartState, checkRoomExists, createRoom, deleteRoom, findAndRemoveUser, findRoom, findRoomById, findRoomByUserId, getRoomUsers } from "./room.repository.ts";
-import { GameResponse, GameUser } from "./response/response.game.ts";
-import { shuffled } from "../utils/shuffle.ts";
-import { getRandomWords } from "../words/words.repository.ts";
+import { APIError } from "../error/APIError";
+import { HttpStatusCode } from "../error/HttpStatusCode";
+import { findUser } from "../users/users.repository";
+import { CreateRoomRequest } from "./requests/request.create";
+import { JoinRoomRequest } from "./requests/request.join";
+import { RoomModel } from "./room.interface";
+import { addUserToRoom, changeRoomToStartState, checkRoomExists, createRoom, deleteRoom, findAndRemoveUser, findRoom, findRoomById, findRoomByUserId, getRoomUsers } from "./room.repository";
+import { GameResponse, GameUser } from "./response/response.game";
+import { shuffled } from "../utils/shuffle";
+import { getRandomWords } from "../words/words.repository";
 
 export const createNewRoom = async (request: CreateRoomRequest) => {
     const errors = await validate(request, {

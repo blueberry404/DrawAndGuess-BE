@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
-import { UserSignupRequest } from "../users/requests/request.signup.ts";
-import { createUser, findUsersByIds } from "./users.service.ts";
-import { GetUsersInfoRequest } from "./requests/request.users.ts";
-import { HttpStatusCode } from "../error/HttpStatusCode.ts";
-import { GameUser } from "../room/response/response.game.ts";
+import { UserSignupRequest } from "../users/requests/request.signup";
+import { createUser, findUsersByIds } from "./users.service";
+import { GetUsersInfoRequest } from "./requests/request.users";
+import { HttpStatusCode } from "../error/HttpStatusCode";
+import { GameUser } from "../room/response/response.game";
 
 export const signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {

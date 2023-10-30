@@ -1,6 +1,6 @@
-import { UserResponse } from "./response/response.signup.ts";
-import { UserConcise } from "./response/response.userconcise.ts";
-import { UserModel } from "./users.interface.ts";
+import { UserResponse } from "./response/response.signup";
+import { UserConcise } from "./response/response.userconcise";
+import { UserModel } from "./users.interface";
 
 //TS2749 : https://stackoverflow.com/a/63639280/437146
 export const createUser = async (user: InstanceType<typeof UserModel>) => {

@@ -7,11 +7,11 @@ import ExpressMongoSanitize from "express-mongo-sanitize";
 
 dotenv.config();
 
-import { closeDB, connectDB } from "./database/index.ts";
-import { ErrorMiddleware } from "./error/error.middleware.ts";
-import { RoomRouter } from "./room/room.route.ts";
-import { UserRouter } from "./users/users.route.ts";
-import { SocketServer } from "./socket/index.ts";
+import { closeDB, connectDB } from "./database/index";
+import { ErrorMiddleware } from "./error/error.middleware";
+import { RoomRouter } from "./room/room.route";
+import { UserRouter } from "./users/users.route";
+import { SocketServer } from "./socket/index";
 
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');

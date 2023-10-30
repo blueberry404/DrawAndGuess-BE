@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 
-import { CreateRoomRequest } from "./requests/request.create.ts";
-import { createNewRoom, findRoomWithRoomId, joinRoomRequest, updateRoomForStart } from "./room.service.ts";
-import { HttpStatusCode } from "../error/HttpStatusCode.ts";
-import { JoinRoomRequest } from "./requests/request.join.ts";
+import { CreateRoomRequest } from "./requests/request.create";
+import { createNewRoom, findRoomWithRoomId, joinRoomRequest, updateRoomForStart } from "./room.service";
+import { HttpStatusCode } from "../error/HttpStatusCode";
+import { JoinRoomRequest } from "./requests/request.join";
 
 export const createRoom = async (req: Request, res: Response, next: NextFunction) => {
     const roomRequest: CreateRoomRequest = req.body;
