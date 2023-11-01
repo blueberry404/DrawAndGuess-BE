@@ -22,7 +22,7 @@ RUN apk add --no-cache make gcc g++ python3 && \
   yarn add --force bcrypt --build-from-source && \
   apk del make gcc g++ python3
 
-CMD [ "yarn", "run", "start:dev-ts" ]
+CMD [ "yarn", "run", "dev-docker" ]
 
 
 FROM base as production
@@ -31,5 +31,5 @@ ENV NODE_ENV=production
 
 RUN yarn install --production
 
-CMD [ "yarn", "prod:start" ]
+CMD [ "yarn", "run", "start" ]
 
